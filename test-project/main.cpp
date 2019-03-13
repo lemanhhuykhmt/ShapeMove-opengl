@@ -1,6 +1,7 @@
 #include<iostream>
 #include <windows.h>  // for MS Windows
 #include <GL/glut.h>  // GLUT, include glu.h and gl.h
+#include <GL/freeglut.h>
 #include <math.h>;
 #include "Vector.h"
 #define PI 3.1415956
@@ -16,6 +17,7 @@ void OnKeyUp(unsigned char key, int x, int y);
 void OnKeyDown(unsigned char key, int x, int y);
 void mouseButton(int button, int state, int x, int y);
 void mouseMove(int x, int y);
+void mouseWheel(int button, int dir, int x, int y);
 
 
 
@@ -25,7 +27,9 @@ Vector cam_pos(0.0, 0.0, 10.0);
 Vector center_pos(0.0, 0.0, 0.0);
 //float *up_pos = new float[3]{0.0, 1.0, 0.0};
 Vector up_point(0.0, 1.0, 10.0);
-Vector up_pos(-cam_pos.getX() + up_point.getX(), -cam_pos.getY() + up_point.getY(), -cam_pos.getZ() + up_point.getZ());
+Vector up_point_forCam(0.0, 1.0, 10.0);
+
+Vector up_pos(-cam_pos.getX() + up_point_forCam.getX(), -cam_pos.getY() + up_point_forCam.getY(), -cam_pos.getZ() + up_point_forCam.getZ());
 bool isRotatingCam = false;
 float xdeltaAngle = 0.0f;
 float ydeltaAngle = 0.0f;
@@ -63,7 +67,8 @@ void frameMove()
 		center_pos = center_pos.Add(up.Mul(deltaMove));
 
 		up_point = up_point.Add(up.Mul(deltaMove));
-		up_pos = up_point.Sub(cam_pos);
+		up_point_forCam = up_point_forCam.Add(up.Mul(deltaMove));
+		up_pos = up_point_forCam.Sub(cam_pos);
 	}
 	if (keyStatesMove['s'])
 	{
@@ -82,7 +87,8 @@ void frameMove()
 		center_pos = center_pos.Sub(up.Mul(deltaMove));
 
 		up_point = up_point.Sub(up.Mul(deltaMove));
-		up_pos = up_point.Sub(cam_pos);
+		up_point_forCam = up_point_forCam.Sub(up.Mul(deltaMove));
+		up_pos = up_point_forCam.Sub(cam_pos);
 	}
 	if (keyStatesMove['a'])
 	{
@@ -104,7 +110,8 @@ void frameMove()
 		cam_pos = cam_pos.Add(n.Mul(deltaMove));
 		center_pos = center_pos.Add(n.Mul(deltaMove));
 		up_point = up_point.Add(n.Mul(deltaMove));
-		up_pos = up_point.Sub(cam_pos);
+		up_point_forCam = up_point_forCam.Add(n.Mul(deltaMove));
+		up_pos = up_point_forCam.Sub(cam_pos);
 	}
 	if (keyStatesMove['d'])
 	{
@@ -127,7 +134,8 @@ void frameMove()
 		cam_pos = cam_pos.Sub(n.Mul(deltaMove));
 		center_pos = center_pos.Sub(n.Mul(deltaMove));
 		up_point = up_point.Sub(n.Mul(deltaMove));
-		up_pos = up_point.Sub(cam_pos);
+		up_point_forCam = up_point_forCam.Sub(n.Mul(deltaMove));
+		up_pos = up_point_forCam.Sub(cam_pos);
 	}
 	////////////////
 	
@@ -237,6 +245,7 @@ int main(int argc, char** argv)
 	glutKeyboardUpFunc(OnKeyUp);
 	glutMouseFunc(mouseButton);
 	glutMotionFunc(mouseMove);
+	glutMouseWheelFunc(mouseWheel);
 	glutMainLoop();
 }
 unsigned char* readBMP(const char* filename, int &w, int &h)
@@ -310,10 +319,8 @@ void OnSpecialDown(int key, int x, int y)
 	}
 	else if (key == GLUT_KEY_F1)
 	{
-		std::cout << "center: " << center_pos.getX() << "; " << center_pos.getY() << "; " << center_pos.getZ() << "//";
-		std::cout << "cam: " << cam_pos.getX() << "; " << cam_pos.getY() << "; " << cam_pos.getZ() << "//";
-		std::cout << "up: " << up_point.getX() << "; " << up_point.getY() << "; " << up_point.getZ() << "//";
-		std::cout << " distan: " << (center_pos.Sub(cam_pos).Magnitude()) <<"\n";
+		std::cout << "up cu: " << up_point.getX() << "; " << up_point.getY() << "; " << up_point.getZ() << "//";
+		std::cout << "up moi : " << up_point_forCam.getX() << "; " << up_point_forCam.getY() << "; " << up_point_forCam.getZ() << "//";
 
 	}
 }
@@ -365,7 +372,6 @@ void mouseButton(int button, int state, int x, int y)
 		//}
 	}
 }
-
 void mouseMove(int x, int y)
 {
 	if (isRotatingCam)
@@ -404,8 +410,9 @@ void mouseMove(int x, int y)
 				int orienteRotate = - Y.DotProduct(v) / (abs(Y.DotProduct(v))) * Z.DotProduct(up) / (abs(Z.DotProduct(up)));
 				ydeltaAngle = (y - yOrigin) * 0.004;
 				up_point = up_point.Rotate_X(orienteRotate * ydeltaAngle, cam_pos);
+				up_point_forCam = up_point_forCam.Rotate_X(orienteRotate * ydeltaAngle, cam_pos);
 				center_pos = center_pos.Rotate_X(orienteRotate * ydeltaAngle, cam_pos);
-				up_pos = up_point.Sub(cam_pos);
+				up_pos = up_point_forCam.Sub(cam_pos);
 				yOrigin = y;
 			}
 			else
@@ -413,16 +420,18 @@ void mouseMove(int x, int y)
 				int orienteRotate = -Y.DotProduct(v) / (abs(Y.DotProduct(v))) * X.DotProduct(up) / (abs(X.DotProduct(up)));
 				ydeltaAngle = (y - yOrigin) * 0.004;
 				up_point = up_point.Rotate_Z(orienteRotate * ydeltaAngle, cam_pos);
+				//up_point_forCam = up_point_forCam.Rotate_Z(orienteRotate * ydeltaAngle, cam_pos);
 				center_pos = center_pos.Rotate_Z(orienteRotate * ydeltaAngle, cam_pos);
-				up_pos = up_point.Sub(cam_pos);
+				//up_pos = up_point_forCam.Sub(cam_pos);
 				yOrigin = y;
 			}
 			
 			//////////////
 			xdeltaAngle = (x - xOrigin) * 0.004;
 			up_point = up_point.Rotate_Y(-xdeltaAngle, cam_pos);
+			up_point_forCam = up_point_forCam.Rotate_Y(-xdeltaAngle, cam_pos);
 			center_pos = center_pos.Rotate_Y(-xdeltaAngle, cam_pos);
-			up_pos = up_point.Sub(cam_pos);
+			up_pos = up_point_forCam.Sub(cam_pos);
 			xOrigin = x;
 		}
 		if (((alphaY >= 45 && alphaY <= 135) || (alphaY >= 255 && alphaY <= 325)) && ((alphaX >= 45 && alphaX <= 135) || (alphaX >= 255 && alphaX <= 325)))
@@ -430,14 +439,16 @@ void mouseMove(int x, int y)
 			int orienteRotate = Z.DotProduct(v) / (abs(Z.DotProduct(v)));
 			ydeltaAngle = (y - yOrigin) * 0.004;
 			up_point = up_point.Rotate_X(orienteRotate * ydeltaAngle, cam_pos);
+			up_point_forCam = up_point_forCam.Rotate_X(orienteRotate * ydeltaAngle, cam_pos);
 			center_pos = center_pos.Rotate_X(orienteRotate * ydeltaAngle, cam_pos);
-			up_pos = up_point.Sub(cam_pos);
+			up_pos = up_point_forCam.Sub(cam_pos);
 			yOrigin = y;
 
 			xdeltaAngle = (x - xOrigin) * 0.004;
 			up_point = up_point.Rotate_Y(-xdeltaAngle, cam_pos);
+			up_point_forCam = up_point_forCam.Rotate_Y(-xdeltaAngle, cam_pos);
 			center_pos = center_pos.Rotate_Y(-xdeltaAngle, cam_pos);
-			up_pos = up_point.Sub(cam_pos);
+			up_pos = up_point_forCam.Sub(cam_pos);
 			xOrigin = x;
 		}
 		if (((alphaY >= 45 && alphaY <= 135) || (alphaY >= 255 && alphaY <= 325)) && ((alphaZ >= 45 && alphaZ <= 135) || (alphaZ >= 255 && alphaZ <= 325)))
@@ -445,16 +456,46 @@ void mouseMove(int x, int y)
 			int orienteRotate = X.DotProduct(v) / (abs(X.DotProduct(v)));
 			ydeltaAngle = (y - yOrigin) * 0.004;
 			up_point = up_point.Rotate_Z(orienteRotate * ydeltaAngle, cam_pos);
+			//up_point_forCam = up_point_forCam.Rotate_Z(orienteRotate * ydeltaAngle, cam_pos);
 			center_pos = center_pos.Rotate_Z(orienteRotate * ydeltaAngle, cam_pos);
-			up_pos = up_point.Sub(cam_pos);
+			//up_pos = up_point_forCam.Sub(cam_pos);
 			yOrigin = y;
 
 			xdeltaAngle = (x - xOrigin) * 0.004;
 			up_point = up_point.Rotate_Y(-xdeltaAngle, cam_pos);
+			up_point_forCam = up_point_forCam.Rotate_Y(-xdeltaAngle, cam_pos);
 			center_pos = center_pos.Rotate_Y(-xdeltaAngle, cam_pos);
-			up_pos = up_point.Sub(cam_pos);
+			up_pos = up_point_forCam.Sub(cam_pos);
 			xOrigin = x;
 		}
 	}
 
+}
+void mouseWheel(int button, int dir, int x, int y)
+{
+	if (dir > 0)
+	{
+		// Zoom in
+		Vector v;
+		v = center_pos.Sub(cam_pos);
+		v.Normalize();
+		cam_pos = cam_pos.Add(v.Mul(deltaMove * 200));
+		center_pos = center_pos.Add(v.Mul(deltaMove * 200));
+		up_point = up_point.Add(v.Mul(deltaMove * 200));
+		up_point_forCam = up_point_forCam.Add(v.Mul(deltaMove * 200));
+
+		up_pos = up_point_forCam.Sub(cam_pos);
+	}
+	else
+	{
+		// Zoom out
+		Vector v;
+		v = center_pos.Sub(cam_pos);
+		v.Normalize();
+		cam_pos = cam_pos.Sub(v.Mul(deltaMove * 200));
+		center_pos = center_pos.Sub(v.Mul(deltaMove * 200));
+		up_point = up_point.Sub(v.Mul(deltaMove * 200));
+		up_point_forCam = up_point_forCam.Sub(v.Mul(deltaMove * 200));
+		up_pos = up_point_forCam.Sub(cam_pos);
+	}
 }
