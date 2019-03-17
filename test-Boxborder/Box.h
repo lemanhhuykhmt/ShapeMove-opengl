@@ -1,12 +1,13 @@
 #pragma once
+#include "BorderCollider.h"
 #include"BoxCollider.h"
-class Box
+#include "Shape.h"
+#include "DEFINE.h"
+class Box : public Shape
 {
-private:
+protected:
 	Vector3 center;
 	int width, height, depth;
-	BoxCollider *collider;
-	Vector3 velocity;
 public:
 	Vector3 getCenter()
 	{
@@ -40,23 +41,14 @@ public:
 	{
 		depth = d;
 	}
-	BoxCollider* getCollider()
-	{
-		return collider;
-	}
-	void setCollider(BoxCollider* b)
-	{
-		collider = b;
-	}
-	Vector3 getVelocity()
-	{
-		return velocity;
-	}
-	void setVelocity(Vector3 v)
-	{
-		velocity = v;
-	}
+	void Collision(Shape* s);
+	void Move(float deltaTime);
+
+
+	//opengl
+	void Draw();
 	Box();
+	Box(Vector3 cen, int w, int h, int d, Vector3 corlor);
 	~Box();
 };
 

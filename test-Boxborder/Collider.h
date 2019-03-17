@@ -23,6 +23,7 @@ public:
 	}
 	virtual std::vector<Vector3> GetPointsToCheck() =0;
 	virtual bool IsPointInSide(Vector3 point) =0;
-	bool IsCollsion(Collider &c);
+	virtual bool IsCollsion(Collider &c);
+	virtual void Move(Vector3 deltaMove) =0;
 };
 

@@ -35,6 +35,11 @@ std::vector<Vector3> BoxCollider::GetPointsToCheck()
 	return listPoints;
 }
 
+void BoxCollider::Move(Vector3 deltaMove)
+{
+	this->center = this->center + deltaMove;
+}
+
 BoxCollider::BoxCollider()
 {
 }

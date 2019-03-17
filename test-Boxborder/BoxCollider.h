@@ -2,7 +2,7 @@
 #include "Collider.h"
 class BoxCollider : virtual public Collider
 {
-private: 
+protected: 
 	Vector3 center;
 	int width, height, depth;
 public:
@@ -40,6 +40,8 @@ public:
 	}
 	bool IsPointInSide(Vector3 point);
 	std::vector<Vector3>GetPointsToCheck();
+	void Move(Vector3 deltaMove);
+
 	BoxCollider();
 	BoxCollider(Vector3 c, int w, int h, int d);
 	~BoxCollider();
