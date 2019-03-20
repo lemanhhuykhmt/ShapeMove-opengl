@@ -37,6 +37,11 @@ std::vector<Vector3> CircleCollider::GetPointsToCheck()
 	return listPoints;
 }
 
+void CircleCollider::Move(Vector3 deltaMove)
+{
+	this->center = this->center + deltaMove;
+}
+
 CircleCollider::CircleCollider()
 {
 	center = Vector3(0, 0, 0);

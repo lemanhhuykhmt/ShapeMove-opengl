@@ -24,6 +24,7 @@ void Shape::Collision(Shape * s)
 
 bool Shape::IsCollision(Shape * s)
 {
+
 	return this->collider->IsCollsion(*s->collider);
 }
 

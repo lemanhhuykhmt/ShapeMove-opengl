@@ -22,16 +22,41 @@ std::vector<Vector3> BoxCollider::GetPointsToCheck()
 	Vector3 min(center.getX() - width / 2.0, center.getY() - height / 2.0, center.getZ() - depth / 2.0);
 	Vector3 max(center.getX() + width / 2.0, center.getY() +height / 2.0, center.getZ()  + depth / 2.0);
 	//
-	std::vector<Vector3> listPoints(8);
-	listPoints[0] = Vector3(min.getX(), min.getY(), min.getZ());
-	listPoints[1] = Vector3(min.getX(), max.getY(), min.getZ());
-	listPoints[2] = Vector3(max.getX(), max.getY(), min.getZ());
-	listPoints[3] = Vector3(max.getX(), min.getY(), min.getZ());
-	listPoints[4] = Vector3(min.getX(), min.getY(), max.getZ());
-	listPoints[5] = Vector3(min.getX(), max.getY(), max.getZ());
-	listPoints[6] = Vector3(max.getX(), max.getY(), max.getZ());
-	listPoints[7] = Vector3(max.getX(), min.getY(), max.getZ());
+	std::vector<Vector3> listPoints;
+	int numberW = (int)ceilf(width);
+	int numberH = (int)ceilf(height);
+	int numberD = (int)ceilf(depth);
 
+	float deltaWidth = width / numberW;
+	float deltaHeight = height / numberH;
+	float deltaDepth = depth / numberD;
+	// front and back
+	for (int i = 0; i <= numberW; ++i)
+	{
+		for (int j = 0; j <= numberH; ++j)
+		{
+			listPoints.push_back(Vector3(min.getX() + i * deltaWidth, min.getY() + j * deltaHeight, min.getZ()));
+			listPoints.push_back(Vector3(min.getX() + i * deltaWidth, min.getY() + j * deltaHeight, max.getZ()));
+		}
+	}
+	// left and right
+	for (int i = 0; i <= numberD; ++i)
+	{
+		for (int j = 0; j <= numberH; ++j)
+		{
+			listPoints.push_back(Vector3(min.getX(), min.getY() + j * deltaHeight, min.getZ() + i * deltaDepth));
+			listPoints.push_back(Vector3(max.getX(), min.getY() + j * deltaHeight, min.getZ() + i * deltaDepth));
+		}
+	}
+	// top and bottom
+	for (int i = 0; i <= numberW; ++i)
+	{
+		for (int j = 0; j <= numberD; ++j)
+		{
+			listPoints.push_back(Vector3(min.getX() + i * deltaWidth, min.getY(), min.getZ() + j * deltaDepth));
+			listPoints.push_back(Vector3(min.getX() + i * deltaWidth, max.getY(), min.getZ() + j * deltaDepth));
+		}
+	}
 	return listPoints;
 }
 

@@ -7,7 +7,7 @@ class Box : public Shape
 {
 protected:
 	Vector3 center;
-	int width, height, depth;
+	float width, height, depth;
 public:
 	Vector3 getCenter()
 	{
@@ -17,27 +17,27 @@ public:
 	{
 		center = _center;
 	}
-	int getWidth()
+	float getWidth()
 	{
 		return width;
 	}
-	void setWidth(int w)
+	void setWidth(float w)
 	{
 		width = w;
 	}
-	int getHeight()
+	float getHeight()
 	{
 		return height;
 	}
-	void setHeight(int h)
+	void setHeight(float h)
 	{
 		height = h;
 	}
-	int getDepth()
+	float getDepth()
 	{
 		return depth;
 	}
-	void setDepth(int d)
+	void setDepth(float d)
 	{
 		depth = d;
 	}
@@ -46,9 +46,9 @@ public:
 
 
 	//opengl
-	void Draw();
+	virtual void Draw();
 	Box();
-	Box(Vector3 cen, int w, int h, int d, Vector3 corlor);
+	Box(Vector3 cen, float w, float h, float d, Vector3 corlor);
 	~Box();
 };
 

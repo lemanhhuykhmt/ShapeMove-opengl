@@ -10,6 +10,7 @@ protected :
 	Collider *collider;
 	std::string tag;
 	
+	Vector3 oldVel;
 public:
 
 	Shape();
@@ -39,6 +40,7 @@ public:
 	void setVelocity(Vector3 v)
 	{
 		velocity = v;
+		oldVel = v;
 	}
 	Collider* getCollider()
 	{
@@ -47,6 +49,15 @@ public:
 	void setCollider(Collider* b)
 	{
 		collider = b;
+	}
+	Vector3 getOldVelocity()
+	{
+		//if (oldVel != velocity) oldVel = velocity;
+		return oldVel;
+	}
+	void setOldVelocity(Vector3 v)
+	{
+		oldVel = v;
 	}
 	virtual void Collision(Shape* s);
 	virtual bool IsCollision(Shape *s);

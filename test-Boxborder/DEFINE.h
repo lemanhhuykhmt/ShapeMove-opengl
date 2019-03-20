@@ -1,5 +1,7 @@
 #pragma once
 #include <string>
+#define PI 3.1415956
+
 class DEFINE
 {
 public:

@@ -87,6 +87,7 @@ Vector3 Vector3::CrossProduct(Vector3 b)
 float Vector3::GetAlpha(Vector3 b)
 {
 	float cosAlpha = this->DotProduct(b) / (this->Magnitude() * b.Magnitude());
+	cosAlpha = roundf(cosAlpha * 100) / 100;
 	return acosf(cosAlpha);
 }
 
@@ -151,6 +152,17 @@ Vector3 Vector3::operator^(const Vector3& v)
 	ret.y = z * v.x - x * v.z;
 	ret.z = x * v.y - y * v.x;
 	return ret;
+}
+
+bool Vector3::operator==(const Vector3 & v)
+{
+	if (x != v.x || y != v.y || z != v.z) return false;
+	return true;
+}
+
+bool Vector3::operator!=(const Vector3 & v)
+{
+	return !(*this == v);
 }
 
 Vector3 Vector3::Rotate_X(float angle, Vector3 i)

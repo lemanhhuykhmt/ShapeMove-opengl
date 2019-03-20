@@ -2,6 +2,7 @@
 #include "Vector3.h"
 #include <vector>
 #include <iostream>
+#include <GL/glut.h>
 
 class Collider
 {
@@ -11,6 +12,7 @@ private:
 	
 
 public:
+	bool Using;
 	 Collider();
 	~Collider();
 	Vector3 getPointInner()
@@ -25,5 +27,6 @@ public:
 	virtual bool IsPointInSide(Vector3 point) =0;
 	virtual bool IsCollsion(Collider &c);
 	virtual void Move(Vector3 deltaMove) =0;
+	void Draw();
 };
 

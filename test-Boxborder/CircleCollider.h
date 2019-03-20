@@ -5,8 +5,8 @@ class CircleCollider : public Collider
 private:
 	Vector3 center;
 	float radius;
-	const int slices = 10;
-	const int stacks = 10;
+	const int slices = 20;
+	const int stacks = 20;
 public:
 	Vector3 getCenter()
 	{
@@ -26,6 +26,7 @@ public:
 	}
 	bool IsPointInSide(Vector3 point);
 	std::vector<Vector3>GetPointsToCheck();
+	void Move(Vector3 deltaMove);
 	CircleCollider();
 	CircleCollider(Vector3 c, float r);
 	~CircleCollider();

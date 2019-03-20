@@ -33,6 +33,9 @@ public:
 	Vector3 operator/(const float s);
 	float operator*(const Vector3& v);
 	Vector3 operator^(const Vector3& v);
+	bool operator==(const Vector3& v);
+	bool operator!=(const Vector3& v);
+
 	////
 	Vector3 Rotate_X(float angle, Vector3 i);
 	Vector3 Rotate_Y(float angle, Vector3 i);

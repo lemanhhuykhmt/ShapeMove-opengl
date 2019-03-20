@@ -2,11 +2,13 @@
 #include <windows.h>  // for MS Windows
 #include <GL/glut.h>  // GLUT, include glu.h and gl.h
 #include <GL/freeglut.h>
-#include <math.h>;
+#include <math.h>
+#include <cstdlib>
+#include <ctime>
 #include "Border.h"
 #include "Box.h"
-#include "CircleCollider.h"
-#define PI 3.1415956
+#include "Circle.h"
+
 
 using namespace std;
 
@@ -78,31 +80,36 @@ float zdeltaAngle = 0.0f;
 int xOrigin = -1;
 int yOrigin = -1;
 int zOrigin = -1;
-float deltaMove = 0.01;
+float deltaMove = 0.4;
 bool *keyStatesMove = new bool[256];
 //GLuint tex_Box = ;
 int oldTimeSinceStart = 0;
 Border *border;
-Box *box;
-Box *box1;
-
+int n = 4;
+Shape **listShape;
 void DrawBox()
 {
-	box->Draw();
-	box1->Draw();
+	if (listShape == NULL) return;
+	for (int i = 0; i < n; ++i)
+	{
+		listShape[i]->Draw();
+		listShape[i]->getCollider()->Draw();
+
+	}
 	border->Draw();
+	border->getCollider()->Draw();
 }
 int main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
-	glutInitWindowSize(500, 500);
+	glutInitWindowSize(900, 600);
 	glutInitWindowPosition(100, 100);
 	glutCreateWindow("Rotate Cam");
+	init();
 	glutReshapeFunc(ReShape);
 	glutDisplayFunc(display);
 	glutIdleFunc(frameMove);
-	init();
 	glutSpecialFunc(OnSpecialDown);
 	glutKeyboardFunc(OnKeyDown);
 	glutKeyboardUpFunc(OnKeyUp);
@@ -117,24 +124,24 @@ void frameMove()
 	float deltaTime = timeSinceStart - oldTimeSinceStart;
 	oldTimeSinceStart = timeSinceStart;
 	deltaTime /= 1000;
-	box->Move(deltaTime);
-	box1->Move(deltaTime);
-	if (border->IsCollision(box))
+	for (int i = 0; i < n; ++i)
 	{
-		border->Collision(box);
+		listShape[i]->Move(deltaTime);
+		if (listShape[i]->IsCollision(border))
+		{
+			listShape[i]->Collision(border);
+		}
+		for (int j = i + 1; j < n; ++j)
+		{
+			if (listShape[i]->IsCollision(listShape[j]))
+			{
+				listShape[i]->Collision(listShape[j]);
+			}
+		}
+		listShape[i]->setOldVelocity(listShape[i]->getVelocity());
 	}
-	if (border->IsCollision(box1))
-	{
-		border->Collision(box1);
-	}
-	if (box->IsCollision(box1))
-	{
-		box->Collision(box1);
-	}
-	if (box1->IsCollision(box))
-	{
-		box1->Collision(box);
-	}
+
+
 	//box->Draw();
 	////////////
 	/*float *v = new float[3];
@@ -317,15 +324,42 @@ void init()
 	{
 		keyStatesMove[i] = false;
 	}
-	box = new Box(Vector3(0.0, 0.0, 0.0), 1, 1, 1, Vector3(1, 1, 0));
-	box->setVelocity(Vector3(5, 5, 0));
-	box1 = new Box(Vector3(2.0, 2.0, 0.0), 1, 1, 1, Vector3(0, 0, 1));
-	box1->setVelocity(Vector3(-5, -5, 0));
+	listShape = new Shape*[n];
+	srand(time(NULL));
 
-	border = new Border(Vector3(0.0, 0.0, 0.0), 8, 8, 8);
+	for (int i = 0; i < 2; ++i)
+	{
+		float x = rand() % (8 - -8 + 1) + -8;
+		float y = rand() % (8 - -8 + 1) + -8;
+		float z = rand() % (8 - -8 + 1) + -8;
+		float w = rand() % (4 - 1 + 1) + 1;
+		float h = rand() % (4 - 1 + 1) + 1;
+		float d = rand() % (4 - 1 + 1) + 1;
+		float r = rand() % (40 - 4 + 1) + 4;
+		float g = rand() % (40 - 4 + 1) + 4;
+		float b = rand() % (40 - 4 + 1) + 4;
+		listShape[i] = new Box(Vector3(x, y, z), w, h, d, Vector3(w / r, h / g, d / b));
+		listShape[i]->setVelocity(Vector3(w, h, d));
+	}
+	for (int i = 2; i < n; ++i)
+	{
+		float x = rand() % (8 - -8 + 1) + -8;
+		float y = rand() % (8 - -8 + 1) + -8;
+		float z = rand() % (8 - -8 + 1) + -8;
+		float w = rand() % (3 - 1 + 1) + 1;
+		float h = rand() % (3 - 1 + 1) + 1;
+		float d = rand() % (3 - 1 + 1) + 1;
+		float r = rand() % (30 - 4 + 1) + 3;
+		float g = rand() % (30 - 4 + 1) + 3;
+		float b = rand() % (30 - 4 + 1) + 3;
+		listShape[i] = new Circle(Vector3(x, y, z), w, Vector3(w / r, h / g, d / b));
+		listShape[i]->setVelocity(Vector3(w, h, d));
+	}
+
+
+	border = new Border(Vector3(0.0, 0.0, -7.0), 20, 20, 30);
 	border->setVelocity(Vector3(0, 0, 0));
 	border->setColor(Vector3(1.0, 0 ,0));
-
 
 
 	glShadeModel(GL_SMOOTH);
@@ -418,7 +452,7 @@ void OnKeyUp(unsigned char key, int x, int y)
 void OnKeyDown(unsigned char key, int x, int y)
 {
 	 
-	if (isRotatingCam) return;
+	//if (isRotatingCam) return;
 	isKeyDown = true;
 	keyStatesMove[key] = true;
 
@@ -426,7 +460,7 @@ void OnKeyDown(unsigned char key, int x, int y)
 void mouseButton(int button, int state, int x, int y)
 {
 	// only start motion if the left button is pressed
-	if (isKeyDown) return;
+	//if (isKeyDown) return;
 	if (button == GLUT_LEFT_BUTTON)
 	{
 		// when the button is released
@@ -570,10 +604,10 @@ void mouseWheel(int button, int dir, int x, int y)
 		Vector3 v;
 		v = center_pos.Sub(cam_pos);
 		v.Normalize();
-		cam_pos = cam_pos.Add(v.Mul(deltaMove * 200));
-		center_pos = center_pos.Add(v.Mul(deltaMove * 200));
-		up_point = up_point.Add(v.Mul(deltaMove * 200));
-		up_point_forCam = up_point_forCam.Add(v.Mul(deltaMove * 200));
+		cam_pos = cam_pos.Add(v.Mul(deltaMove * 1));
+		center_pos = center_pos.Add(v.Mul(deltaMove * 1));
+		up_point = up_point.Add(v.Mul(deltaMove * 1));
+		up_point_forCam = up_point_forCam.Add(v.Mul(deltaMove * 1));
 
 		up_pos = up_point_forCam.Sub(cam_pos);
 	}
@@ -583,10 +617,10 @@ void mouseWheel(int button, int dir, int x, int y)
 		Vector3 v;
 		v = center_pos.Sub(cam_pos);
 		v.Normalize();
-		cam_pos = cam_pos.Sub(v.Mul(deltaMove * 200));
-		center_pos = center_pos.Sub(v.Mul(deltaMove * 200));
-		up_point = up_point.Sub(v.Mul(deltaMove * 200));
-		up_point_forCam = up_point_forCam.Sub(v.Mul(deltaMove * 200));
+		cam_pos = cam_pos.Sub(v.Mul(deltaMove * 1));
+		center_pos = center_pos.Sub(v.Mul(deltaMove * 1));
+		up_point = up_point.Sub(v.Mul(deltaMove * 1));
+		up_point_forCam = up_point_forCam.Sub(v.Mul(deltaMove * 1));
 		up_pos = up_point_forCam.Sub(cam_pos);
 	}
 }

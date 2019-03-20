@@ -3,29 +3,48 @@
 
 void Box::Collision(Shape * s)
 {
+	if (this->collider->Using == false)
+	{
+		this->collider->Using = true;
+		s->getCollider()->Using = true;
+		s->Collision(this);
+	}
 	if (s->getTag().compare(DEFINE::TAG_OBJ) == 0)
 	{
-		setVelocity(-getVelocity());
+		/*float alpha = velocity.GetAlpha(s->getOldVelocity());
+		if (alpha > PI / 2)
+		{
+			alpha = PI - alpha;
+		}
+		Vector3 sum = velocity + s->getOldVelocity();
+		Vector3 diff = -velocity + s->getOldVelocity();
+		Vector3 newVel = (diff + sum * cos(alpha)) / 2;
+		velocity = newVel;
+		s->setOldVelocity(s->getVelocity());*/
+		velocity = s->getOldVelocity();
 	}
 	else if (s->getTag().compare(DEFINE::TAG_BORDER) == 0)
 	{
 		BorderCollider *border = dynamic_cast<BorderCollider*>(s->getCollider());
 		DEFINE::EDirection dir = border->DirectionCollision(*(this->collider));
-		if (dir == DEFINE::EDirection::LEFT || dir == DEFINE::EDirection::RIGHT)
+		if ((dir == DEFINE::EDirection::LEFT && velocity.getX() < 0) || (dir == DEFINE::EDirection::RIGHT && velocity.getX() > 0))
 		{
 			velocity.setX(-1 * velocity.getX());
 		}
-		else if (dir == DEFINE::EDirection::TOP || dir == DEFINE::EDirection::BOTTOM)
+		dir = border->DirectionCollision(*(this->collider));
+		if ((dir == DEFINE::EDirection::TOP && velocity.getY() > 0) || (dir == DEFINE::EDirection::BOTTOM && velocity.getY() < 0))
 		{
 			velocity.setY(-1 * velocity.getY());
 
 		}
-		else if (dir == DEFINE::EDirection::BACK || dir == DEFINE::EDirection::FRONT)
+		dir = border->DirectionCollision(*(this->collider));
+		if ((dir == DEFINE::EDirection::BACK && velocity.getZ() < 0) || (dir == DEFINE::EDirection::FRONT && velocity.getZ() > 0))
 		{
 
 			velocity.setZ(-1 * velocity.getZ());
 		}
 	}
+	this->collider->Using = false;
 }
 
 void Box::Move(float deltaTime)
@@ -92,9 +111,10 @@ Box::Box()
 	width = 1;
 	height = 1;
 	depth = 1;
+	tag = DEFINE::TAG_OBJ;
 }
 
-Box::Box(Vector3 cen, int w, int h, int d, Vector3 corlor) : Shape(corlor)
+Box::Box(Vector3 cen, float w, float h, float d, Vector3 corlor) : Shape(corlor)
 {
 	center = cen; 
 	width = w;
