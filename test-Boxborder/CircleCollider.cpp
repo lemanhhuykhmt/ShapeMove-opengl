@@ -10,13 +10,13 @@ bool CircleCollider::IsPointInSide(Vector3 point)
 
 std::vector<Vector3> CircleCollider::GetPointsToCheck()
 {
+	if (listPoints.size() != 0) return listPoints;
 	int numberPoint = 2 * (slices - 1) * (stacks - 1) + 2 * (slices -	1) + 2 * (stacks - 1);
 	float deltaTheta = 180 / slices;
 	float deltaPhi = 180 / stacks;
 
 	float Theta;
 	float Phi;
-	std::vector<Vector3> listPoints;
 	for (Phi = 0; Phi <= 180; Phi += deltaPhi)
 	{
 		for (Theta = 0; Theta < 360; Theta += deltaTheta)
@@ -39,6 +39,7 @@ std::vector<Vector3> CircleCollider::GetPointsToCheck()
 
 void CircleCollider::Move(Vector3 deltaMove)
 {
+	Collider::Move(deltaMove);
 	this->center = this->center + deltaMove;
 }
 

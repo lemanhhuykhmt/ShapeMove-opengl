@@ -19,10 +19,10 @@ bool BoxCollider::IsPointInSide(Vector3 point)
 
 std::vector<Vector3> BoxCollider::GetPointsToCheck()
 {
+	if (listPoints.size() != 0) return listPoints;
 	Vector3 min(center.getX() - width / 2.0, center.getY() - height / 2.0, center.getZ() - depth / 2.0);
 	Vector3 max(center.getX() + width / 2.0, center.getY() +height / 2.0, center.getZ()  + depth / 2.0);
 	//
-	std::vector<Vector3> listPoints;
 	int numberW = (int)ceilf(width);
 	int numberH = (int)ceilf(height);
 	int numberD = (int)ceilf(depth);
@@ -62,6 +62,7 @@ std::vector<Vector3> BoxCollider::GetPointsToCheck()
 
 void BoxCollider::Move(Vector3 deltaMove)
 {
+	Collider::Move(deltaMove);
 	this->center = this->center + deltaMove;
 }
 

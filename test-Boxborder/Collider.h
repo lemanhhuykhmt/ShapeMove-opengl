@@ -6,10 +6,10 @@
 
 class Collider
 {
-private: 
+protected: 
 
 	Vector3 pointInner;
-	
+	std::vector<Vector3> listPoints;
 
 public:
 	bool Using;
@@ -23,10 +23,10 @@ public:
 	{
 		pointInner = value;
 	}
-	virtual std::vector<Vector3> GetPointsToCheck() =0;
+	virtual std::vector<Vector3> GetPointsToCheck();
 	virtual bool IsPointInSide(Vector3 point) =0;
 	virtual bool IsCollsion(Collider &c);
-	virtual void Move(Vector3 deltaMove) =0;
+	virtual void Move(Vector3 deltaMove);
 	void Draw();
 };
 
